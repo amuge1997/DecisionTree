@@ -5,15 +5,46 @@ import numpy as n
 class DDTree:
     # 离散决策树
 
-    class TreeClass:
-        def __init__(self):
-            pass
+    class NodeClass:
+        def __init__(self,it_deep):
+            self.subNode = {}
+            self.it_featureRow = None
+            self.it_deep = it_deep + 1
 
-    
+        def add_subNode(self,it_featureRow,it_featureValue,inst_subNode):
+            self.it_featureRow = it_featureRow
+            self.subNode[it_featureValue] = inst_subNode
+
+        def isLeaf(self):
+            if len(self.subNode) == 0:
+                return True
+            else:
+                return False
+    def walk(self,node):
+        if node.isLeaf():
+            return
+        for it_featureValue,ins_subNode in node.subNode.items():
+            print('进入{}节点'.format(it_featureValue))
+            self.walk(ins_subNode)
+
+
     def __init__(self):
-        self.Tree = self.TreeClass()
+        arr_X = n.array([
+            [1, 2, 1, 1],
+            [1, 2, 1, 3],
+            [1, 2, 1, 1],
+            [0, 0, 0, 0],
+        ], dtype=n.int)
+        arr_L = n.array([
+            [1, 0, 1, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 1],
+        ])
 
-    def node(self,dc_sample):
+        self.root = self.NodeClass(0)
+        self.node({'X':arr_X,'L':arr_L},self.root)
+
+    def node(self,dc_sample,ins_node):
         arr_X = dc_sample['X']
         arr_L = dc_sample['L']
 
@@ -23,18 +54,26 @@ class DDTree:
         arr_allFeaturePurityExpect = self.all_feature_purity_expect({'X': arr_X, 'L': arr_L})
         # 计算信息增益
         fl_gain = fl_nowPurity - arr_allFeaturePurityExpect
-        it_maxGain = fl_gain.argmax()
+
+        fl_maxGin =fl_gain.max()
+        if fl_maxGin<0.1:
+            print(fl_maxGin)
+            return
+        it_maxGainRow = fl_gain.argmax()
 
         # 删去信息增益最大的特征
-        arr_newX = n.delete(arr_X, it_maxGain, axis=0)
+        arr_newX = n.delete(arr_X, it_maxGainRow, axis=0)
 
-        arr_maxGainArrX = arr_X[it_maxGain]
+        arr_maxGainArrX = arr_X[it_maxGainRow]
         set_ = set(arr_maxGainArrX)
         for i in set_:
             arr_col = n.where(arr_maxGainArrX == i)[0]
             arr_aNewX = arr_newX[:, arr_col]
             arr_aNewL = arr_L[:, arr_col]
-            print(arr_aNewX)
+
+            inst_subNode = self.NodeClass(ins_node.it_deep)
+            ins_node.add_subNode(it_featureRow=it_maxGainRow, it_featureValue=i, inst_subNode=inst_subNode)
+            self.node({'X': arr_aNewX, 'L': arr_aNewL}, inst_subNode)
 
 
     def all_feature_purity_expect(self,dc_sample):
@@ -65,21 +104,24 @@ class DDTree:
         return arr_allFPurityExpect
 
     def purity(self,dc_sample):
+        fl_zero = 1e-6
+
         arr_X = dc_sample['X']
         arr_L = dc_sample['L']
-
         # 统计标签占比
         arr_nL = n.sum(arr_L, axis=1)
         arr_sumL = arr_nL.sum()
         arr_proL = arr_nL / arr_sumL
-
+        # 由于浮点数 0*log0 并非为 0 ,因此定义一个极小值代替 0
+        arr_proL = n.where(arr_proL < fl_zero, fl_zero, arr_proL)
         # 计算纯度
         fl_purity = - n.sum(arr_proL * n.log(arr_proL))
         return fl_purity
 
 
-
-
+if __name__ == '__main__':
+    T = DDTree()
+    T.walk(T.root)
 
 
 
