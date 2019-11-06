@@ -24,6 +24,9 @@ class DDTree:
             self.probability()
 
         def add_subNode(self,it_featureRow,it_featureValue,inst_subNode):
+            if self.it_featureRow is not None:
+                if it_featureRow != self.it_featureRow:
+                    raise Exception('add_subNode() 输入的参数\'特征行 featureRow\'错误!')
             self.it_featureRow = it_featureRow
             self.subNode[it_featureValue] = inst_subNode
 
@@ -126,13 +129,15 @@ class DDTree:
         return fl_purity
 
     # 预测
-    def predict(self,node,arr_aX):
+    def predict(self,arr_aX):
+        self.pred(self.root,arr_aX)
+    def pred(self,node,arr_aX):
         if node.isLeaf():
             print('概率: {}'.format(node.arr_proLabel))
             return
         it_featureRow = node.it_featureRow
         it_featureValue = arr_aX[it_featureRow,0]
-        self.predict(node= node.subNode[it_featureValue],arr_aX=arr_aX)
+        self.pred(node= node.subNode[it_featureValue],arr_aX=arr_aX)
 
 if __name__ == '__main__':
     # arr_X = n.array([
@@ -158,7 +163,7 @@ if __name__ == '__main__':
         [2],
         [1]
     ])
-    T.predict(T.root,arr_aX)
+    T.predict(arr_aX)
 
 
 
