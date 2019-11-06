@@ -41,22 +41,20 @@ class DDTree:
             else:
                 return False
 
-
-    # def walk(self,node):
-    #     if node.isLeaf():
-    #         return
-    #     for it_featureValue,ins_subNode in node.subNode.items():
-    #         print('进入特征层{}的{}节点'.format(node.it_featureRow,it_featureValue))
-    #         self.walk(ins_subNode)
-
     def __init__(self,arr_X,arr_L):
-
-
         self.root = self.NodeClass(0,arr_L)
         self.node({'X':arr_X,'L':arr_L},self.root)
 
+    # 终止判断
+    def isStop(self,fl_gain):
+        fl_maxGin = fl_gain.max()
+        # 信息增益过小时停止
+        if fl_maxGin < 0.1:
+            return True
+        return False
+
+    # 节点处理
     def node(self,dc_sample,ins_node):
-        print('new node')
         arr_X = dc_sample['X']
         arr_L = dc_sample['L']
 
@@ -67,11 +65,7 @@ class DDTree:
         # 计算信息增益
         fl_gain = fl_nowPurity - arr_allFeaturePurityExpect
 
-        # 信息增益过小时停止
-        fl_maxGin =fl_gain.max()
-        print(fl_maxGin)
-        if fl_maxGin<0.1:
-            print('return')
+        if self.isStop(fl_gain):
             return
 
         # 获取信息增益最大的特征(行)
@@ -84,12 +78,11 @@ class DDTree:
             arr_aNewX = arr_X[:, arr_col]
             arr_aNewL = arr_L[:, arr_col]
 
-            # print(arr_aNewX)
-            # print(arr_aNewL)
             inst_subNode = self.NodeClass(ins_node.it_deep,arr_aNewL)
             ins_node.add_subNode(it_featureRow=it_maxGainRow, it_featureValue=i, inst_subNode=inst_subNode)
             self.node({'X': arr_aNewX, 'L': arr_aNewL}, inst_subNode)
 
+    # 计算所有特征纯度的期望
     def all_feature_purity_expect(self,dc_sample):
         arr_X = dc_sample['X']
         arr_L = dc_sample['L']
@@ -112,9 +105,11 @@ class DDTree:
                 fl_pro = it_aFaVNumSum / it_sampleSum
                 # 一个特征的纯度的期望
                 fl_aFPurityExpect += fl_pro * fl_purity
+            # 所有特征的纯度的期望
             arr_allFPurityExpect[it_featureNum] = fl_aFPurityExpect
         return arr_allFPurityExpect
 
+    # 计算纯度
     def purity(self,dc_sample):
         fl_zero = 1e-6
 
@@ -130,6 +125,7 @@ class DDTree:
         fl_purity = - n.sum(arr_proL * n.log(arr_proL))
         return fl_purity
 
+    # 预测
     def predict(self,node,arr_aX):
         if node.isLeaf():
             print('概率: {}'.format(node.arr_proLabel))
