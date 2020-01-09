@@ -11,10 +11,10 @@ class DTreeDrawClass:
         self.tk.resizable(width=False,height=False)         # 不可缩放
         self.cv = Canvas(self.tk,background='#afafaf', width=1000, height=950,scrollregion=(0,0,1500,1500))  # 画布
         self.cv.pack()
-        vbar = Scrollbar(self.tk, orient=VERTICAL)  # 竖直滚动条
+        vbar = Scrollbar(self.tk, orient=VERTICAL)          # 竖直滚动条
         vbar.place(x=0, width=20, height=400)
         vbar.configure(command=self.cv.yview)
-        hbar = Scrollbar(self.tk, orient=HORIZONTAL)  # 竖直滚动条
+        hbar = Scrollbar(self.tk, orient=HORIZONTAL)        # 竖直滚动条
         hbar.place(x=20, width=400, height=20)
         hbar.configure(command=self.cv.xview)
 
@@ -44,7 +44,7 @@ class DTreeDrawClass:
         sr_pro = '概率: {}'.format(np.round(node.arr_proLabel,2))     # 概率
         sr_fea = '特征: {}'.format(node.it_selfFeatureRow)            # 特征(行)
         sr_val = '取值: {}'.format(node.it_selfFeatureVal)            # 特征(行)的取值
-        sr_num = '数量: {}'.format(node.arr_Label.shape[1])            # 该节点的样本数量
+        sr_num = '数量: {}'.format(node.arr_Label.shape[1])           # 该节点的样本数量
         self.cv.create_text(it_drawSrcX + 10, it_drawSrcY + 5, text=sr_fea, anchor='nw')
         self.cv.create_text(it_drawSrcX + 10, it_drawSrcY + 20, text= sr_val, anchor='nw')
         self.cv.create_text(it_drawSrcX + 10, it_drawSrcY + 35, text=sr_num, anchor='nw')

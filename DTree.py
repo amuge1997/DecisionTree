@@ -17,6 +17,7 @@ class DTree:
     def __init__(self,arr_X,arr_L):
         arr_X = arr_X.T
         arr_L = arr_L.T
+        self.it_featureNum = arr_X.shape[0]
         self.root = NodeClass(0,arr_L)
         self.node({'X':arr_X,'L':arr_L},self.root)
 
@@ -52,7 +53,7 @@ class DTree:
             arr_aNewL = arr_L[:, arr_col]
 
             inst_subNode = NodeClass(ins_node.it_deep,arr_aNewL)        # 在确定了选取的特征行后, 该特征的每个取值作为一个子节点
-            ins_node.add_subNode(it_featureRow= it_maxGainFeatureRow, it_featureValue= i, inst_subNode= inst_subNode)  # 将子节点连接到父节点上
+            ins_node.addSubNode(it_featureRow= it_maxGainFeatureRow, it_featureValue= i, inst_subNode= inst_subNode)  # 将子节点连接到父节点上
             self.node({'X': arr_aNewX, 'L': arr_aNewL}, inst_subNode)   # 递归创建节点
 
     # 计算所有特征纯度的期望
@@ -97,6 +98,8 @@ class DTree:
     # 预测
     def predict(self,arr_aX,bl_isShowPredict=False):
         arr_aX = arr_aX.T
+        if arr_aX.shape[0] != self.it_featureNum:
+            raise ValueError('DTree.pred() 输入特征的维度与训练样本不一致!')
         arr_pre = self.pred(self.root,arr_aX,bl_isShowPredict=bl_isShowPredict)
         return arr_pre.copy()
     # 递归预测
@@ -107,7 +110,7 @@ class DTree:
             return node.arr_proLabel
         it_featureRow = node.it_featureRow
         it_featureValue = arr_aX[it_featureRow,0]
-        if it_featureValue not in node.subNode: # 如果子节点中的特征没有该取值,则返回该节点的预测概率
+        if it_featureValue not in node.subNode: # 由于训练时样本不断分割,可能出现子节点样本中的特征没有该取值,此时直接返回奔节点的预测概率
             return node.arr_proLabel
         arr_pre = self.pred(node= node.subNode[it_featureValue],arr_aX=arr_aX,bl_isShowPredict=bl_isShowPredict)
         return arr_pre

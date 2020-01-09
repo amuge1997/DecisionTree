@@ -14,10 +14,10 @@ class NodeClass:
 
         self.it_featureRow = None       # 子节点使用的特征(样本的行)
 
-    def add_subNode(self, it_featureRow, it_featureValue, inst_subNode):
+    def addSubNode(self, it_featureRow, it_featureValue, inst_subNode):
         if self.it_featureRow is not None:
             if it_featureRow != self.it_featureRow:
-                raise Exception('add_subNode() 输入的参数\'特征行 featureRow\'错误!')
+                raise Exception('addSubNode() 输入的参数\'特征行 featureRow\'错误!')
         self.it_featureRow = it_featureRow              # 子节点所使用的特征
         self.subNode[it_featureValue] = inst_subNode    # 特征的多个取值的子节点
         inst_subNode.it_selfFeatureRow = it_featureRow
