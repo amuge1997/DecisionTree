@@ -1,5 +1,5 @@
 import numpy as n
-from DecisionTree.NodeClass import NodeClass
+from DecisionTree.Node import NodeClass
 from DecisionTree.DTreeDraw import DTreeDrawClass
 
 class DTree:
