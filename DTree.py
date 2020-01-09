@@ -1,5 +1,6 @@
 import numpy as n
-
+from DecisionTree.NodeClass import NodeClass
+from DecisionTree.DTreeDraw import DTreeDrawClass
 
 class DTree:
     # 离散决策树
@@ -13,48 +14,16 @@ class DTree:
     注意 DTree().predict() 只能预测一个样本 输入形式为 array( [ [1,2,3,1,5] ] )
     '''
 
-    class NodeClass:
-        def __init__(self,it_deep,arr_Label):
-            self.subNode = {}
-            self.it_selfFeatureRow = None   # 本节点使用的特征(样本的行)
-            self.it_selfFeatureVal = None   # 本节点使用的特征(样本的行)的取值
-            self.it_featureRow = None       # 子节点使用的特征(样本的行)
-            self.it_deep = it_deep + 1
-            self.arr_Label = arr_Label      # 这个节点使用的训练集
-            self.probability()              # 这个节点的预测
-
-        def add_subNode(self,it_featureRow,it_featureValue,inst_subNode):
-            if self.it_featureRow is not None:
-                if it_featureRow != self.it_featureRow:
-                    raise Exception('add_subNode() 输入的参数\'特征行 featureRow\'错误!')
-            self.it_featureRow = it_featureRow              # 子节点所使用的特征
-            self.subNode[it_featureValue] = inst_subNode    # 特征的多个取值的子节点
-            inst_subNode.it_selfFeatureRow = it_featureRow
-            inst_subNode.it_selfFeatureVal = it_featureValue
-
-        def probability(self):
-            arr_L = self.arr_Label
-            arr_nL = n.sum(arr_L, axis=1)
-            arr_sumL = arr_nL.sum()
-            arr_proL = (arr_nL / arr_sumL)
-            self.arr_proLabel = arr_proL        # 每个标签的概率
-
-        def isLeaf(self):
-            if len(self.subNode) == 0:
-                return True
-            else:
-                return False
-
     def __init__(self,arr_X,arr_L):
         arr_X = arr_X.T
         arr_L = arr_L.T
-        self.root = self.NodeClass(0,arr_L)
+        self.root = NodeClass(0,arr_L)
         self.node({'X':arr_X,'L':arr_L},self.root)
 
     # 终止判断
     def isStop(self,fl_gain=None,it_deep=None):
         fl_maxGin = fl_gain.max()
-        if fl_gain is not None and fl_maxGin < 0.01:     # 信息增益过小, 停止
+        if fl_gain is not None and fl_maxGin < 0.01:    # 信息增益过小, 停止
             return True
         if it_deep is not None and it_deep >= 5:        # 树过深, 停止
             return True
@@ -82,7 +51,7 @@ class DTree:
             arr_aNewX = arr_X[:, arr_col]
             arr_aNewL = arr_L[:, arr_col]
 
-            inst_subNode = self.NodeClass(ins_node.it_deep,arr_aNewL)   # 在确定了选取的特征行后, 该特征的每个取值作为一个子节点
+            inst_subNode = NodeClass(ins_node.it_deep,arr_aNewL)        # 在确定了选取的特征行后, 该特征的每个取值作为一个子节点
             ins_node.add_subNode(it_featureRow= it_maxGainFeatureRow, it_featureValue= i, inst_subNode= inst_subNode)  # 将子节点连接到父节点上
             self.node({'X': arr_aNewX, 'L': arr_aNewL}, inst_subNode)   # 递归创建节点
 
@@ -97,7 +66,7 @@ class DTree:
         arr_allFPurityExpect = n.zeros(it_featureNumSum)    # 记录所有特征后的分割纯度
 
         # 计算使用某个特征进行分割后的纯度的期望
-        for it_featureIndex, arr_aFX in enumerate(arr_X): # it_featureIndex特征索引,即第几个特征  arr_aFX每个样本的该索引特征取值
+        for it_featureIndex, arr_aFX in enumerate(arr_X):   # it_featureIndex特征索引,即第几个特征  arr_aFX每个样本的该索引特征取值
             set_enableValue = set(arr_aFX)                  # 一个特征的所有可能的取值
             fl_oneFPurityExpect = 0                         # 一个特征的纯度期望
 
@@ -126,21 +95,36 @@ class DTree:
         return fl_purity
 
     # 预测
-    def predict(self,arr_aX):
+    def predict(self,arr_aX,bl_isShowPredict=False):
         arr_aX = arr_aX.T
-        arr_pre = self.pred(self.root,arr_aX)
+        arr_pre = self.pred(self.root,arr_aX,bl_isShowPredict=bl_isShowPredict)
         return arr_pre.copy()
     # 递归预测
-    def pred(self,node,arr_aX):
+    def pred(self,node,arr_aX,bl_isShowPredict=False):
+        if bl_isShowPredict:
+            node.bl_isPredict = True
         if node.isLeaf():                       # 如果到达了叶子节点,则返回预测概率
             return node.arr_proLabel
         it_featureRow = node.it_featureRow
         it_featureValue = arr_aX[it_featureRow,0]
         if it_featureValue not in node.subNode: # 如果子节点中的特征没有该取值,则返回该节点的预测概率
             return node.arr_proLabel
-        arr_pre = self.pred(node= node.subNode[it_featureValue],arr_aX=arr_aX)
+        arr_pre = self.pred(node= node.subNode[it_featureValue],arr_aX=arr_aX,bl_isShowPredict=bl_isShowPredict)
         return arr_pre
 
+    # 决策树可视化
+    def show(self):
+        Dtd = DTreeDrawClass(self.root)
+        Dtd.drawTree()
+        Dtd.show()
+
+    # 决策树预测可视化
+    def predictShow(self,arr_aX):
+        arr_pre = self.predict(arr_aX,bl_isShowPredict=True)
+        Dtd = DTreeDrawClass(self.root,bl_isShowPredict=True)
+        Dtd.drawTree()
+        Dtd.show()
+        return arr_pre
 
 if __name__ == '__main__':
 

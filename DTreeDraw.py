@@ -1,9 +1,11 @@
 import numpy as np
 from tkinter import *
 
-class DTreeDraw:
-    def __init__(self,ins_Tree):
-        self.DTree = ins_Tree
+class DTreeDrawClass:
+    def __init__(self,ins_root,bl_isShowPredict=False):     # bl_isShowPredict 是否预测可视化
+        self.Troot =ins_root
+
+        self.bl_isShowPredict = bl_isShowPredict
 
         self.tk = Tk()                                      # 主控件
         self.tk.resizable(width=False,height=False)         # 不可缩放
@@ -12,8 +14,8 @@ class DTreeDraw:
 
     # 决策树可视化
     def drawTree(self):
-        self.drawWalk(self.DTree.root, {'x': 0, 'y': 0},{'x':0,'y':0})
-
+        self.drawWalk(self.Troot, {'x': 0, 'y': 0},{'x':0,'y':0})
+    # 决策树可视化递归
     def drawWalk(self, node, node_xy, node_lxy):
         x, y = node_xy['x'], node_xy['y']
 
@@ -26,7 +28,13 @@ class DTreeDraw:
         it_rectangleX = it_drawSrcX+it_wid-40       # 矩形右下角坐标X
         it_rectangleY = it_drawSrcY+it_hei          # 矩形右下角坐标Y
 
-        self.cv.create_rectangle(it_drawSrcX,it_drawSrcY,it_rectangleX,it_rectangleY)           # 节点矩形
+        self.cv.create_rectangle(it_drawSrcX, it_drawSrcY, it_rectangleX, it_rectangleY)  # 节点矩形
+        if node.bl_isPredict:                       # 如果需要绘制预测路径
+            if self.bl_isShowPredict:               # 如果该节点在预测时被使用到, 则使用黄色框
+                self.cv.create_rectangle(it_drawSrcX, it_drawSrcY, it_rectangleX, it_rectangleY,
+                                         outline='yellow')  # 节点矩形
+                node.bl_isPredict = False           # 清空预测置位
+
         sr_pro = '概率: {}'.format(np.round(node.arr_proLabel,2))                               # 概率
         sr_fea = '特征: {}'.format(node.it_selfFeatureRow)                                      # 特征(行)
         sr_val = '取值: {}'.format(node.it_selfFeatureVal)                                      # 特征(行)的取值
@@ -34,9 +42,11 @@ class DTreeDraw:
         self.cv.create_text(it_drawSrcX + 10, it_drawSrcY + 20, text= sr_val, anchor='nw')
         self.cv.create_text(it_drawSrcX + 10, it_drawSrcY + 35, text= sr_pro, anchor='nw')
 
-        tp_thisxy = (it_drawSrcX,it_drawSrcY)       # 当前节点坐标
-        tp_lastxy = (node_lxy['x'],node_lxy['y'])   # 父节点坐标
-        self.cv.create_line([tp_lastxy,tp_thisxy],arrow=LAST)
+        tp_thisxy = (it_drawSrcX,it_drawSrcY + it_hei/2)        # 当前节点坐标
+        tp_lastxy = (node_lxy['x'],node_lxy['y'] + it_hei/2)    # 父节点坐标
+        it_r = 4
+        self.cv.create_oval(tp_lastxy[0]-it_r,tp_lastxy[1]-it_r,tp_lastxy[0]+it_r,tp_lastxy[1]+it_r,fill='black')
+        self.cv.create_line([tp_lastxy,tp_thisxy],arrow=LAST)   # 节点指向箭头
 
         node_lxy = {'x':it_rectangleX,'y':it_drawSrcY}
         if node.isLeaf():
