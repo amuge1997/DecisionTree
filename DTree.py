@@ -36,15 +36,15 @@ class DTree:
         arr_X = dc_sample['X']
         arr_L = dc_sample['L']
 
-        fl_nowPurity = self.calPurity({'X': None, 'L': arr_L})         # 计算当前节点的纯度, 用于计算信息增益
+        fl_nowPurity = self.calPurity({'X': None, 'L': arr_L})      # 计算当前节点的纯度, 用于计算信息增益
         arr_everyFeaturePurityExpect = self.all_feature_purity_expect({'X': arr_X, 'L': arr_L})   # 计算每一个特征分割后的纯度
-        arr_gain = fl_nowPurity - arr_everyFeaturePurityExpect       # 计算信息增益
+        arr_gain = fl_nowPurity - arr_everyFeaturePurityExpect      # 计算信息增益
 
         if self.isStop(arr_gain,ins_node.it_deep):
             return
 
-        it_selectFeatureIndex = arr_gain.argmax()                     # 获取信息增益最大的特征(行)索引数组
-        arr_selectArrXbyIdx = arr_X[it_selectFeatureIndex]               # 获取信息增益最大的特征(行)样本
+        it_selectFeatureIndex = arr_gain.argmax()                   # 获取信息增益最大的特征(行)索引数组
+        arr_selectArrXbyIdx = arr_X[it_selectFeatureIndex]          # 获取信息增益最大的特征(行)样本
         set_featureValue = set(arr_selectArrXbyIdx)
         for it_featureVal in set_featureValue:
             arr_colIndex = n.where(arr_selectArrXbyIdx == it_featureVal)[0]
@@ -54,20 +54,17 @@ class DTree:
             arr_newL = arr_L[:, arr_colIndex]
 
             tp_subInfo = (it_selectFeatureIndex,it_featureVal)
-            ins_subNode = NodeClass(tp_subInfo,arr_newL,ins_node.it_deep)        # 在确定了选取的特征行后, 该特征的每个取值作为一个子节点
+            ins_subNode = NodeClass(tp_subInfo,arr_newL,ins_node.it_deep)   # 在确定了选取的特征行后, 该特征的每个取值作为一个子节点
             ins_node.addSubNode(ins_subNode=ins_subNode,tp_subInfo=tp_subInfo)
-            self.node({'X': arr_newX, 'L': arr_newL}, ins_subNode)   # 递归创建节点
+            self.node({'X': arr_newX, 'L': arr_newL}, ins_subNode)          # 递归创建节点
 
     # 计算所有特征纯度的期望
     def all_feature_purity_expect(self,dc_sample):
-        arr_X = dc_sample['X']
-
-        it_featureNumSum = arr_X.shape[0]                   # 特征数量
-
-        arr_allFPurityExpect = n.zeros(it_featureNumSum)    # 记录所有特征后的分割纯度
+        it_featureNum = self.it_featureNum                  # 特征数量
+        arr_allFPurityExpect = n.zeros(it_featureNum)       # 记录所有特征后的分割纯度
 
         # 计算使用某个特征进行分割后的纯度的期望
-        for it_featureIndex in range(it_featureNumSum):   # it_featureIndex特征索引,即第几个特征  arr_aFX每个样本的该索引特征取值
+        for it_featureIndex in range(it_featureNum):        # it_featureIndex特征索引,即第几个特征  arr_aFX每个样本的该索引特征取值
             fl_purityExpect = self.calPurityExpection(dc_sample,it_featureIndex)
             arr_allFPurityExpect[it_featureIndex] = fl_purityExpect # 所有特征的纯度的期望
         return arr_allFPurityExpect
@@ -123,25 +120,19 @@ class DTree:
         arr_pre = pred(self.root, arr_X, bl_isShowPredict=bl_isShowPredict)
         return arr_pre.copy()
 
-
     # 决策树可视化
-    def show(self):
-        Dtd = DTreeDrawClass(self.root)
-        Dtd.drawTree()
-        Dtd.show()
+    def show(self,ls_othName=None):
+        DTreeDrawClass(self.root,ls_othName=ls_othName)
 
     # 决策树预测可视化
-    def predictShow(self,arr_aX):
+    def predictShow(self,arr_aX,ls_othName=None,sr_title=None):
         arr_pre = self.predict(arr_aX,bl_isShowPredict=True)
-        Dtd = DTreeDrawClass(self.root,bl_isShowPredict=True)
-        Dtd.drawTree()
-        Dtd.show()
+        DTreeDrawClass(self.root,bl_isShowPredict=True,ls_othName=ls_othName,sr_title=sr_title)
         return arr_pre
 
     # 决策树可视化保存
-    def showSave(self, sr_savePath):
-        TreeSaveClass(self.root, sr_savePath)
-
+    def showSave(self, sr_savePath,ls_othName=None):
+        TreeSaveClass(ins_root=self.root, sr_savePath=sr_savePath,ls_othName=ls_othName)
 
 if __name__ == '__main__':
 
