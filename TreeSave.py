@@ -20,9 +20,9 @@ class TreeSaveClass:
         self.calMaxXY(self.Troot, {'x': 0, 'y': 0}, {'x': 0, 'y': 0})   # 计算出 self.maxX,maxY
 
         array = np.ndarray((self.it_hei*(self.it_maxY+3),self.it_wid*(self.it_maxX+2), 3), np.uint8)    # 图像数组
-        array[:, :, 0] = 255                    # 255
-        array[:, :, 1] = 255                    # 255
-        array[:, :, 2] = 255                    # 255
+        array[:, :, 0] = 239
+        array[:, :, 1] = 239
+        array[:, :, 2] = 239
 
         self.image = Image.fromarray(array)     # 图像对象
         self.draw = ImageDraw.Draw(self.image)  # 绘图对象

@@ -15,7 +15,11 @@ class DTree:
     注意 DTree().predict() 只能预测一个样本 输入形式为 array( [ [1,2,3,1,5] ] )
     '''
 
-    def __init__(self,arr_X,arr_L):
+    def __init__(self,arr_X,arr_L,fl_minGain=0.01,it_maxDeep=15,it_minSample=1):
+        self.fl_minGain = fl_minGain        # 最小增益
+        self.it_maxDeep = it_maxDeep        # 最大深度
+        self.it_minSample = it_minSample    # 最小样本数
+
         arr_X = arr_X.T
         arr_L = arr_L.T
         self.it_featureNum = arr_X.shape[0]
@@ -23,24 +27,29 @@ class DTree:
         self.node({'X':arr_X,'L':arr_L},self.root)
 
     # 终止判断
-    def isStop(self,fl_gain=None,it_deep=None):
-        fl_maxGin = n.max(fl_gain)
-        if fl_gain is not None and fl_maxGin < 0.01:    # 信息增益过小, 停止
+    def isStop(self,arr_gain=None,it_deep=None,it_minSample=None):
+        fl_maxGin = n.max(arr_gain)
+        if arr_gain is not None and fl_maxGin < self.fl_minGain:            # 信息增益过小, 停止
             return True
-        if it_deep is not None and it_deep >= 5:        # 树过深, 停止
+        if it_deep is not None and it_deep >= self.it_maxDeep:              # 树过深, 停止
+            return True
+        if it_minSample is not None and it_minSample <= self.it_minSample:  # 样本过少, 停止
             return True
         return False
 
     # 节点处理
     def node(self,dc_sample,ins_node):
-        arr_X = dc_sample['X']
         arr_L = dc_sample['L']
+
+        arr_LNum = arr_L.shape[1]                       # 样本数量
+        if self.isStop(it_minSample=arr_LNum):
+            return
 
         fl_nowPurity = self.calPurity({'X': None, 'L': arr_L})      # 计算当前节点的纯度, 用于计算信息增益
         arr_everyFeaturePurityExpect = self.all_feature_purity_expect({'X': arr_X, 'L': arr_L})   # 计算每一个特征分割后的纯度
         arr_gain = fl_nowPurity - arr_everyFeaturePurityExpect      # 计算信息增益
 
-        if self.isStop(arr_gain,ins_node.it_deep):
+        if self.isStop(arr_gain=arr_gain,it_deep=ins_node.it_deep):
             return
 
         it_selectFeatureIndex = arr_gain.argmax()                   # 获取信息增益最大的特征(行)索引数组

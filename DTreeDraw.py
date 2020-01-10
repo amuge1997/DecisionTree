@@ -43,7 +43,7 @@ class DTreeDrawClass:
             self.tk.title(self.sr_title)                # 设置标题
         self.tk.resizable(width=False, height=False)    # 不可缩放
         tp_scrollregion = (0, 0, self.it_wid * (self.it_maxX + 2), self.it_hei * (self.it_maxY + 3))            # 限制滚动区域
-        self.cv = Canvas(self.tk, background='#afafaf', width=1500, height=1000, scrollregion=tp_scrollregion)  # 画布 Canvas
+        self.cv = Canvas(self.tk, background='#efefef', width=1500, height=1000, scrollregion=tp_scrollregion)  # 画布 Canvas
         self.cv.pack()
         vbar = Scrollbar(self.tk, orient=VERTICAL)      # 竖直滚动条
         vbar.place(x=0, width=20, height=400)

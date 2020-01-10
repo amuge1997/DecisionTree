@@ -6,7 +6,11 @@ from DecisionTree.TreeSave import TreeSaveClass
 
 # 分类回归决策树 CART
 class CARTree:
-    def __init__(self,arr_X,arr_L):
+    def __init__(self,arr_X,arr_L,fl_minGain=0.01,it_maxDeep=15,it_minSample=1):
+        self.fl_minGain = fl_minGain        # 最小增益
+        self.it_maxDeep = it_maxDeep        # 最大深度
+        self.it_minSample = it_minSample    # 最小样本数
+
         arr_X = arr_X.T                     # 样本数据
         arr_L = arr_L.T                     # 样本标签
         self.it_featureNum = arr_X.shape[0] # 特征数量
@@ -16,11 +20,11 @@ class CARTree:
     # 终止判断
     def isStop(self,arr_gain=None,it_deep=None,it_minSample=None):
         fl_maxGin = n.max(arr_gain)
-        if arr_gain is not None and fl_maxGin < 0.01:       # 信息增益过小, 停止
+        if arr_gain is not None and fl_maxGin < self.fl_minGain:            # 信息增益过小, 停止
             return True
-        if it_deep is not None and it_deep >= 15:           # 树过深, 停止
+        if it_deep is not None and it_deep >= self.it_maxDeep:              # 树过深, 停止
             return True
-        if it_minSample is not None and it_minSample <= 1:  # 样本过少, 停止
+        if it_minSample is not None and it_minSample <= self.it_minSample:  # 样本过少, 停止
             return True
         return False
 
@@ -29,7 +33,7 @@ class CARTree:
         arr_X = dc_sample['X']                      # 进入该节点的样本数据
         arr_L = dc_sample['L']                      # 进入该节点的样本标签
 
-        arr_LNum = arr_L.shape[1]
+        arr_LNum = arr_L.shape[1]                   # 样本数量
 
         if self.isStop(it_deep=ins_node.it_deep):   # 深度条件判断
             return
