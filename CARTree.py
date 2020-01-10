@@ -37,7 +37,7 @@ class CARTree:
 
         if self.isStop(it_deep=ins_node.it_deep):   # 深度条件判断
             return
-        if self.isStop(it_minSample=arr_LNum):      # 纯度条件判断,如果只有一个样本 calPurity 会出问题,所以加样本数量停止条件
+        if self.isStop(it_minSample=arr_LNum):      # 数量条件判断
             return
 
         fl_nowPurity = self.calPurity({'X': None, 'L': arr_L})      # 计算当前节点的纯度, 用于计算信息增益
