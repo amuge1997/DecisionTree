@@ -1,6 +1,6 @@
 import numpy as n
 from DecisionTree.Node import NodeClass
-from DecisionTree.DTreeDraw import DTreeDrawClass
+from DecisionTree.TreeDraw import DTreeDrawClass
 from DecisionTree.TreeSave import TreeSaveClass
 
 class DTree:
