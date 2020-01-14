@@ -39,9 +39,10 @@ class DTree:
 
     # 节点处理
     def node(self,dc_sample,ins_node):
+        arr_X = dc_sample['X']
         arr_L = dc_sample['L']
 
-        arr_LNum = arr_L.shape[1]                       # 样本数量
+        arr_LNum = arr_L.shape[1]                                   # 样本数量
         if self.isStop(it_minSample=arr_LNum):
             return
 
@@ -75,7 +76,7 @@ class DTree:
         # 计算使用某个特征进行分割后的纯度的期望
         for it_featureIndex in range(it_featureNum):        # it_featureIndex特征索引,即第几个特征  arr_aFX每个样本的该索引特征取值
             fl_purityExpect = self.calPurityExpection(dc_sample,it_featureIndex)
-            arr_allFPurityExpect[it_featureIndex] = fl_purityExpect # 所有特征的纯度的期望
+            arr_allFPurityExpect[it_featureIndex] = fl_purityExpect         # 所有特征的纯度的期望
         return arr_allFPurityExpect
 
     # 计算单个特征的纯度期望
@@ -84,26 +85,26 @@ class DTree:
         arr_L = dc_sample['L']
         arr_oneRowX = arr_X[it_featureIndex,:]
         it_LNum = arr_X.shape[1]
-        set_enableValue = set(arr_oneRowX)  # 一个特征的所有可能的取值
-        fl_purityExpect = 0  # 一个特征的纯度期望
-        for i in set_enableValue:  # 遍历一个特征的每个取值
-            arr_colIndex = n.where(arr_oneRowX == i)[0]  # 拥有该特征取值的样本的索引
-            arr_newL = arr_L[:, arr_colIndex]  # 一个特征的一个取值的所有样本的标签集合
-            fl_purity = self.calPurity({'X': None, 'L': arr_newL})  # 一个特征的一个取值的纯度
-            it_newLNum = arr_newL.shape[1]  # 一个特征的一个取值的样本数量
-            fl_pro = it_newLNum / it_LNum  # 一个特征的一个取值的样本数量 在 所有样本 中的比例
-            fl_purityExpect += fl_pro * fl_purity  # 一个特征的纯度的期望
+        set_enableValue = set(arr_oneRowX)                  # 一个特征的所有可能的取值
+        fl_purityExpect = 0                                 # 一个特征的纯度期望
+        for i in set_enableValue:                           # 遍历一个特征的每个取值
+            arr_colIndex = n.where(arr_oneRowX == i)[0]     # 拥有该特征取值的样本的索引
+            arr_newL = arr_L[:, arr_colIndex]               # 一个特征的一个取值的所有样本的标签集合
+            fl_purity = self.calPurity({'X': None, 'L': arr_newL})          # 一个特征的一个取值的纯度
+            it_newLNum = arr_newL.shape[1]                  # 一个特征的一个取值的样本数量
+            fl_pro = it_newLNum / it_LNum                   # 一个特征的一个取值的样本数量 在 所有样本 中的比例
+            fl_purityExpect += fl_pro * fl_purity           # 一个特征的纯度的期望
         return fl_purityExpect
 
     # 计算单个特征的单个取值的纯度
     def calPurity(self,dc_sample):
-        fl_zero = 1e-6          # 定义一个极小值代替 0
+        fl_zero = 1e-6                      # 定义一个极小值代替 0
 
         arr_L = dc_sample['L']
 
-        arr_nL = n.sum(arr_L, axis=1)   # 样本每个类别数量
-        arr_sumL = arr_L.shape[1]         # 样本数量
-        arr_proL = arr_nL / arr_sumL    # 样本概率 = 样本每个类别数量 / 样本数量
+        arr_nL = n.sum(arr_L, axis=1)       # 样本每个类别数量
+        arr_sumL = arr_L.shape[1]           # 样本数量
+        arr_proL = arr_nL / arr_sumL        # 样本概率 = 样本每个类别数量 / 样本数量
         arr_proL = n.where(arr_proL < fl_zero, fl_zero, arr_proL)   # 将样本概率中接近 0 的值进行替换, 否则 0*log(0) 将出现问题
         fl_purity = - n.sum(arr_proL * n.log(arr_proL))             # 计算纯度
         return fl_purity
@@ -114,12 +115,12 @@ class DTree:
         def pred(node, arr_X, bl_isShowPredict=False):
             if bl_isShowPredict:
                 node.bl_isPredict = True
-            if node.isLeaf():  # 如果到达了叶子节点,则返回预测概率
+            if node.isLeaf():                   # 如果到达了叶子节点,则返回预测概率
                 return node.arr_proLabel
             it_featureIndex = node.tp_subInfo[0]
             it_featureValue = arr_X[it_featureIndex, 0]
             tp_subKey = (it_featureIndex, it_featureValue)
-            if tp_subKey not in node.subNode:  # 由于训练时样本不断分割,可能出现子节点样本中的特征没有该取值,此时直接返回奔节点的预测概率
+            if tp_subKey not in node.subNode:   # 由于训练时样本不断分割,可能出现子节点样本中的特征没有该取值,此时直接返回奔节点的预测概率
                 return node.arr_proLabel
             arr_pre = pred(node=node.subNode[tp_subKey], arr_X=arr_X, bl_isShowPredict=bl_isShowPredict)
             return arr_pre
