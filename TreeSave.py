@@ -5,12 +5,14 @@ from PIL import ImageDraw,ImageFont
 
 # 用于保存可视化的决策树
 class TreeSaveClass:
-    def __init__(self,ins_root,sr_savePath,ls_othName=None):
+    def __init__(self,ins_root,sr_savePath,it_clfNum,ls_othName=None,):
         self.Troot = ins_root                   # 树根节点
         self.sr_savePath = sr_savePath          # 保存路径
         self.ls_othName = ls_othName            # 别名
 
         self.it_wid = 250                       # 节点的宽度
+        self.it_wid += 50*(it_clfNum - 2)
+
         self.it_hei = 105                       # 节点的高度
         self.it_xoffset = 100                   # 节点X偏移
         self.it_yoffset = 40                    # 节点Y偏移
@@ -79,10 +81,10 @@ class TreeSaveClass:
                 sr_val = 'val: <={}'.format(fl_featureValue)            # 特征(行)的取值
         sr_num = 'num: {}'.format(node.ar_Label.shape[1])               # 该节点的样本数量
 
-        self.draw.text((it_drawSrcX + 10,it_drawSrcY + 10),text=sr_fea,fill='black',font=self.font)
+        self.draw.text((it_drawSrcX + 10,it_drawSrcY + 8),text=sr_fea,fill='black',font=self.font)
         self.draw.text((it_drawSrcX + 10, it_drawSrcY + 30), text=sr_val,fill='black',font=self.font)
-        self.draw.text((it_drawSrcX + 10, it_drawSrcY + 50), text=sr_num,fill='black',font=self.font)
-        self.draw.text((it_drawSrcX + 10, it_drawSrcY + 70), text=sr_pro,fill='black',font=self.font)
+        self.draw.text((it_drawSrcX + 10, it_drawSrcY + 52), text=sr_num,fill='black',font=self.font)
+        self.draw.text((it_drawSrcX + 10, it_drawSrcY + 74), text=sr_pro,fill='black',font=self.font)
 
         tp_thisxy = (it_drawSrcX,it_drawSrcY + it_hei/2)                # 当前节点坐标
         tp_lastxy = (node_lxy['x'],node_lxy['y'] + it_hei/2)            # 父节点坐标

@@ -2,7 +2,7 @@ import numpy as np
 from tkinter import *
 
 # 用于决策树可视化
-class DTreeDrawClass:
+class TreeDrawClass:
     def __init__(self,ins_root,bl_isShowPredict=False,ls_othName=None,sr_title=None):     # bl_isShowPredict 是否预测可视化
         self.bl_isShowPredict = bl_isShowPredict        # 是否绘制预测路径
         self.ls_othName = ls_othName                    # 特征别名

@@ -1,6 +1,6 @@
 import numpy as n
 from DecisionTree.Node import NodeClass
-from DecisionTree.TreeDraw import DTreeDrawClass
+from DecisionTree.TreeDraw import TreeDrawClass
 from DecisionTree.TreeSave import TreeSaveClass
 
 class DTree:
@@ -23,6 +23,7 @@ class DTree:
         arr_X = arr_X.T
         arr_L = arr_L.T
         self.it_featureNum = arr_X.shape[0]
+        self.it_clfNum = arr_L.shape[0]
         self.root = NodeClass(tp_selfInfo=(None,None),arr_Label=arr_L,it_deep=0)
         self.node({'X':arr_X,'L':arr_L},self.root)
 
@@ -132,17 +133,17 @@ class DTree:
 
     # 决策树可视化
     def show(self,ls_othName=None):
-        DTreeDrawClass(self.root,ls_othName=ls_othName)
+        TreeDrawClass(self.root,ls_othName=ls_othName)
 
     # 决策树预测可视化
     def predictShow(self,arr_aX,ls_othName=None,sr_title=None):
         arr_pre = self.predict(arr_aX,bl_isShowPredict=True)
-        DTreeDrawClass(self.root,bl_isShowPredict=True,ls_othName=ls_othName,sr_title=sr_title)
+        TreeDrawClass(self.root,bl_isShowPredict=True,ls_othName=ls_othName,sr_title=sr_title)
         return arr_pre
 
     # 决策树可视化保存
     def showSave(self, sr_savePath,ls_othName=None):
-        TreeSaveClass(ins_root=self.root, sr_savePath=sr_savePath,ls_othName=ls_othName)
+        TreeSaveClass(ins_root=self.root, sr_savePath=sr_savePath, it_clfNum=self.it_clfNum, ls_othName=ls_othName)
 
 if __name__ == '__main__':
 

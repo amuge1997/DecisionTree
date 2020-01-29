@@ -1,6 +1,6 @@
 import numpy as n
 from DecisionTree.Node import NodeClass
-from DecisionTree.TreeDraw import DTreeDrawClass
+from DecisionTree.TreeDraw import TreeDrawClass
 from DecisionTree.TreeSave import TreeSaveClass
 
 
@@ -14,6 +14,7 @@ class CARTree:
         arr_X = arr_X.T                     # 样本数据
         arr_L = arr_L.T                     # 样本标签
         self.it_featureNum = arr_X.shape[0] # 特征数量
+        self.it_clfNum = arr_L.shape[0]
         self.root = NodeClass(tp_selfInfo=(None,None),arr_Label=arr_L,it_deep=0)    # 根节点
         self.node({'X':arr_X,'L':arr_L},self.root)          # 进行节点处理
 
@@ -92,10 +93,10 @@ class CARTree:
         # 计算出分割点,计算每个分割点对应的纯度,选择纯度最大的分割点
         arr_oneRowXSort = n.sort(arr_oneRowX)               # 对特征的值进行排序
 
-        arr_zero = n.array([0])
-        arr_temp = n.append(arr_zero,arr_oneRowXSort[:-1])
-        arr_split = 0.5*(arr_temp + arr_oneRowXSort)[1:]    # 求出每个值的中点作为候选分割点
-
+        arr_temp1 = arr_oneRowXSort[:-1]
+        arr_temp2 = 0.5*(arr_temp1 + arr_oneRowXSort[1:])    # 求出每个值的中点作为候选分割点
+        arr_split = n.zeros(arr_temp2.shape[0] + 2)
+        arr_split[0],arr_split[1:-1],arr_split[-1] = arr_oneRowXSort[0],arr_temp2,arr_oneRowXSort[-1]   # 将两个最值也作为候选分割点
         arr_uniqueSplit = n.unique(arr_split)               # 取出相同的分割点
 
         arr_purityExpect = n.zeros(arr_uniqueSplit.shape[0])    # 用于记录每个分割点带来的纯度的期望
@@ -120,7 +121,7 @@ class CARTree:
                 fl_purityExpect += 0.0
 
             arr_purityExpect[it_spliti] = fl_purityExpect
-        fl_minPurityExpect = n.min(arr_purityExpect)                        # 值越小,纯度越高
+        fl_minPurityExpect = n.min(arr_purityExpect)                        # 纯度期望值越小,纯度越高
         fl_sqlitPoint = arr_uniqueSplit[n.argmin(arr_purityExpect)]         # 纯度最高的分割点
 
         return fl_sqlitPoint,fl_minPurityExpect                             # 返回该特征的 分割点,纯度期望
@@ -162,16 +163,16 @@ class CARTree:
 
     # 决策树可视化
     def show(self,ls_othName=None):
-        DTreeDrawClass(self.root,ls_othName=ls_othName)
+        TreeDrawClass(self.root,ls_othName=ls_othName)
     # 决策树预测可视化
     def predictShow(self,arr_X,ls_othName=None,sr_title=None):
         arr_pre = self.predict(arr_X, bl_isShowPredict=True)
-        DTreeDrawClass(self.root, bl_isShowPredict=True,ls_othName=ls_othName,sr_title=sr_title)
+        TreeDrawClass(self.root, bl_isShowPredict=True,ls_othName=ls_othName,sr_title=sr_title)
         return arr_pre
 
     # 决策树可视化保存
     def showSave(self,sr_savePath,ls_othName=None):
-        TreeSaveClass(ins_root=self.root,sr_savePath=sr_savePath,ls_othName=ls_othName)
+        TreeSaveClass(ins_root=self.root,sr_savePath=sr_savePath,it_clfNum=self.it_clfNum,ls_othName=ls_othName)
 
 
 
